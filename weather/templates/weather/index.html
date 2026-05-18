@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -45,11 +46,11 @@
             <div class="sun-times">
                 <div class="sun-item">
                     <span class="sun-icon">🌅</span>
-                    <span>Sunrise: {{ weather.sunrise|date:"H:i" }}</span>
+                    <span>Sunrise: {{ weather.sunrise }}</span>
                 </div>
                 <div class="sun-item">
                     <span class="sun-icon">🌇</span>
-                    <span>Sunset: {{ weather.sunset|date:"H:i" }}</span>
+                    <span>Sunset: {{ weather.sunset }}</span>
                 </div>
             </div>
 

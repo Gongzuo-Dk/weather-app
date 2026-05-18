@@ -1,6 +1,6 @@
 import requests
 from django.conf import settings
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 def get_coordinates(city):
     # Convert a city name to lat/lon coordinates using OpenWeather Geocoding API.
@@ -33,14 +33,10 @@ def get_coordinates(city):
         return None
     
 def get_current_weather(city):
-    # Fetch current weather for a city.
-    # Returns a cleaned dict of weather data.
-    # Returns None if anything goes wrong.
-
     coords = get_coordinates(city)
     if not coords:
         return None
-    
+
     api_key = settings.OPENWEATHER_API_KEY
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
@@ -55,6 +51,8 @@ def get_current_weather(city):
         response.raise_for_status()
         data = response.json()
 
+        city_offset = timezone(timedelta(seconds=data["timezone"]))
+
         return {
             "city": coords["city_name"],
             "country": coords["country"],
@@ -62,14 +60,14 @@ def get_current_weather(city):
             "feels_like": round(data["main"]["feels_like"]),
             "humidity": data["main"]["humidity"],
             "pressure": data["main"]["pressure"],
-            "visibility": data.get("visibility", 0) // 1000,  # convert m to km
+            "visibility": data.get("visibility", 0) // 1000,
             "description": data["weather"][0]["description"].capitalize(),
-            "icon": data["weather"][0]["icon"],
+            "icon": data["weather"][0]["icon"].replace("n", "d"),
             "wind_speed": data["wind"]["speed"],
-            "sunrise": datetime.fromtimestamp(data["sys"]["sunrise"], tz=timezone.utc),
-            "sunset": datetime.fromtimestamp(data["sys"]["sunset"], tz=timezone.utc),
+            "sunrise": datetime.fromtimestamp(data["sys"]["sunrise"], tz=city_offset).strftime("%H:%M"),
+            "sunset": datetime.fromtimestamp(data["sys"]["sunset"], tz=city_offset).strftime("%H:%M"),
         }
-    
+
     except requests.exceptions.RequestException:
         return None
     
@@ -109,7 +107,7 @@ def get_forecast(city):
                     "temp_max": round(entry["main"]["temp_max"]),
                     "temp_min": round(entry["main"]["temp_min"]),
                     "description": entry["weather"][0]["description"].capitalize(),
-                    "icon": entry["weather"][0]["icon"],
+                    "icon": entry["weather"][0]["icon"].replace("n", "d"),
                 }
 
         return list(daily.values())
