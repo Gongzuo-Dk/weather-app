@@ -47,8 +47,8 @@ static/               # CSS
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/Gongzuo-Dk/WeatherApp.git
-cd WeatherApp
+git clone https://github.com/Gongzuo-Dk/weather-app.git
+cd weather-app
 ```
 
 **2. Create and activate virtual environment**
